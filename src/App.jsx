@@ -302,98 +302,24 @@ function AppLocalStyles() {
 
         /* Mobile horizontal scroll fix */
         html, body { overflow-x: hidden; }
-
-        @media (max-width: 640px) {
-          .romantic-shell::before,
-          .romantic-shell::after {
-            display: none;
-          }
-
-          .ambient-haze {
-            filter: none;
-            opacity: 0.62;
-          }
-
-          .hero-light-field {
-            mask-image: none;
-          }
-
-          .ocean-waves {
-            height: 24vh;
-            opacity: 0.34;
-          }
-
-          .ocean-waves span {
-            height: 90px;
-            animation-duration: 18s;
-          }
-
-          .petal {
-            box-shadow: none;
-          }
-
-          .sparkle {
-            box-shadow: 0 0 8px rgba(243, 207, 142, 0.45);
-          }
-
-          .album-art.spinning {
-            animation-duration: 18s;
-          }
-
-          .pulse-glow {
-            animation: none;
-            box-shadow: 0 0 28px rgba(255, 194, 212, 0.2);
-          }
-
-          [style*="backdrop-filter"] {
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
-          }
-
-          [style*="box-shadow"] {
-            box-shadow: 0 14px 44px rgba(7, 5, 10, 0.28) !important;
-          }
-        }
       `}
     </style>
   );
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 640px)");
-    const updateMobileState = () => setIsMobile(mediaQuery.matches);
-
-    updateMobileState();
-    mediaQuery.addEventListener("change", updateMobileState);
-
-    return () => {
-      mediaQuery.removeEventListener("change", updateMobileState);
-    };
-  }, []);
-
-  return isMobile;
-}
-
-function FloatingPetals({ variant = "full", isMobile = false }) {
+function FloatingPetals({ variant = "full" }) {
   const { petals, sparkles } = useMemo(() => {
-    const petalCount = isMobile ? (variant === "intro" ? 8 : 12) : variant === "intro" ? 18 : 38;
-    const sparkleCount = isMobile ? (variant === "intro" ? 6 : 10) : variant === "intro" ? 22 : 48;
-    const basePetalSize = isMobile ? 7 : 10;
-    const petalSizeRange = isMobile ? 10 : 18;
-    const baseDuration = isMobile ? 18 : 11;
-    const durationRange = isMobile ? 10 : 13;
+    const petalCount = variant === "intro" ? 18 : 38;
+    const sparkleCount = variant === "intro" ? 22 : 48;
 
     return {
       petals: Array.from({ length: petalCount }, (_, index) => ({
         id: `petal-${index}`,
         left: (index * 29 + 11) % 100,
-        size: basePetalSize + ((index * 7) % petalSizeRange),
+        size: 10 + ((index * 7) % 18),
         delay: (index * 0.7) % 8,
-        duration: baseDuration + ((index * 5) % durationRange),
-        drift: isMobile ? (index % 2 === 0 ? 18 + index : -18 - index) : index % 2 === 0 ? 36 + index : -34 - index,
+        duration: 11 + ((index * 5) % 13),
+        drift: index % 2 === 0 ? 36 + index : -34 - index,
         color: petalPalette[index % petalPalette.length],
       })),
       sparkles: Array.from({ length: sparkleCount }, (_, index) => ({
@@ -404,7 +330,7 @@ function FloatingPetals({ variant = "full", isMobile = false }) {
         delay: (index * 0.35) % 5,
       })),
     };
-  }, [variant, isMobile]);
+  }, [variant]);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
@@ -1145,7 +1071,6 @@ function Closing() {
 export default function App() {
   const [isOpened, setIsOpened] = useState(false);
   const [autoStartToken, setAutoStartToken] = useState(0);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     document.body.style.overflow = isOpened ? "auto" : "hidden";
@@ -1164,7 +1089,7 @@ export default function App() {
   return (
     <div className="romantic-shell relative min-h-screen overflow-x-hidden body-font" style={{ color: "rgba(249,200,214,0.9)" }}>
       <AppLocalStyles />
-      <FloatingPetals variant={isOpened ? "full" : "intro"} isMobile={isMobile} />
+      <FloatingPetals variant={isOpened ? "full" : "intro"} />
 
       <AnimatePresence mode="wait">
         {!isOpened ? (
